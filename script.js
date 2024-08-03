@@ -7,7 +7,7 @@ async function getWeatherData() {
   let cityName = cityInput.value;
   let date1 = getCurrentDate();
   let date2 = getDateInAWeek();
-  let APIKey = "E6766K5TT6ACJQ7YGAGJ4ZKSP"; // free key, doesn't matter if leaked
+  let APIKey = "E6766K5TT6ACJQ7YGAGJ4ZKSP"; // free key, doesn't matter if clearly displayed
   const requestURL = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${cityName}/${date1}/${date2}/?key=${APIKey}`;
   try {
     const response = await fetch(requestURL);
@@ -39,8 +39,7 @@ function displayData(json) {
   let conditions = json.currentConditions.conditions;
   let description = json.description;
   dataDisplay.innerText = `The current temperature in ${address} is ${celsius}°C.\n
-  It is ${conditions.toLowerCase()}.\n
-  ${description}`;
+  ${conditions}. ${description} \n`;
   cityInput.value = "";
 }
 
