@@ -1,10 +1,10 @@
-const cityInput = document.querySelector("#cityInput");
+const locationInput = document.querySelector("#locationInput");
 const dataDisplay = document.querySelector("#dataDisplay");
-const btnSearch = document.querySelector("#btnGetData");
+const searchBtn = document.querySelector("#searchBtn");
 
 // API functions
 async function getWeatherData() {
-  let cityName = cityInput.value;
+  let cityName = locationInput.value;
   let date1 = getCurrentDate();
   let date2 = getDateInAWeek();
   let APIKey = "E6766K5TT6ACJQ7YGAGJ4ZKSP"; // free key, doesn't matter if clearly displayed
@@ -13,35 +13,51 @@ async function getWeatherData() {
     const response = await fetch(requestURL);
     const json = await response.json();
     console.log(json);
-    displayData(json);
+    filterData(json);
   } catch (error) {
     console.log(error);
     dataDisplay.innerText = "Location could not be found.";
   }
 }
 
+let weatherData = [
+  { id: "today" },
+  { id: "todayPlusOne" },
+  { id: "todayPlusTwo" },
+  { id: "todayPlusThree" },
+  { id: "todayPlusFour" },
+  { id: "todayPlusFive" },
+  { id: "todayPlusSix" },
+  { id: "todayPlusSeven" },
+];
+
+function filterData(json) {
+  weatherData[0].currentTemp = json.currentConditions.temp;
+  weatherData[0].feelsLike = json.currentConditions.feelslike;
+  weatherData[0].humidity = json.currentConditions.humidity;
+  weatherData[0].chanceOfRain = json.currentConditions.precipprob;
+  weatherData[0].windSpeed = json.currentConditions.windspeed;
+
+  for (let i = 0; i < weatherData.length; i++) {
+    weatherData[i].weekday = getWeekdayFromDate(json.days[i].datetime);
+    weatherData[i].tempMax = json.days[i].tempmax;
+    weatherData[i].tempMin = json.days[i].tempmin;
+    weatherData[i].icon = json.days[i].icon;
+  }
+  console.log(weatherData);
+}
+
 // UI functions
-btnSearch.addEventListener("click", () => {
+searchBtn.addEventListener("click", () => {
   getWeatherData();
 });
 
-cityInput.addEventListener("keydown", (e) => {
+locationInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
     e.preventDefault();
     getWeatherData();
   }
 });
-
-function displayData(json) {
-  let address = json.resolvedAddress;
-  let temperature = json.currentConditions.temp;
-  let celsius = fahrenheitToCelsius(temperature);
-  let conditions = json.currentConditions.conditions;
-  let description = json.description;
-  dataDisplay.innerText = `The current temperature in ${address} is ${celsius}°C.\n
-  ${conditions}. ${description} \n`;
-  cityInput.value = "";
-}
 
 // helper functions
 function fahrenheitToCelsius(number) {
@@ -59,4 +75,10 @@ function getDateInAWeek() {
   const futureDate = new Date(now);
   futureDate.setDate(now.getDate() + 7);
   return futureDate.toISOString();
+}
+
+function getWeekdayFromDate(date) {
+  const weekday = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const d = new Date(date);
+  return weekday[d.getDay()];
 }

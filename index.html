@@ -7,10 +7,25 @@
     <title>Weather App</title>
     <link rel="stylesheet" href="styles.css" />
     <script src="script.js" defer></script>
+    <script src="https://kit.fontawesome.com/c2f55ce452.js" crossorigin="anonymous"></script>
   </head>
   <body>
-    <input type="text" id="cityInput" placeholder="Search City or Address" autocomplete="off" />
-    <button id="btnGetData">Search</button>
+    <header>
+      <div class="search-container">
+        <input
+          type="text"
+          class="locationInput"
+          id="locationInput"
+          placeholder="Search City or Address"
+          autocomplete="off"
+        />
+        <button class="searchBtn" id="searchBtn"><i class="fa-solid fa-magnifying-glass"></i></button>
+      </div>
+      <div class="settings-container">
+        <button class="convertBtn" id="celsiusBtn">°C, m/s</button>
+        <button class="convertBtn" id="fahrenheitBtn">°F, m/s</button>
+      </div>
+    </header>
     <p id="dataDisplay"></p>
   </body>
 </html>

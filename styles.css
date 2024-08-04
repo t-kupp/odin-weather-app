@@ -1,0 +1,81 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
+
+:root {
+  --font: #49454f;
+  --light: #ece6f0;
+}
+
+* {
+  font-family: montserrat, sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  border: none;
+}
+
+textarea:focus,
+input:focus {
+  outline: none;
+}
+
+header {
+  padding: 0 32px;
+  height: 200px;
+  background-image: url("./img/background.png");
+  background-size: cover;
+  background-position: center;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-content: center;
+  align-items: center;
+}
+
+.search-container {
+  display: flex;
+  align-content: center;
+  justify-content: center;
+  justify-self: center;
+  grid-column: 2 / 3;
+  border-radius: 99px;
+  height: 50px;
+  width: 300px;
+  background-color: var(--light);
+}
+
+.locationInput {
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--font);
+  background-color: inherit;
+  width: 75%;
+  border-radius: 99px;
+  padding: 1px;
+}
+
+.locationInput::placeholder {
+  font-weight: 400;
+  font-size: 14px;
+}
+
+.searchBtn {
+  height: 100%;
+  cursor: pointer;
+  width: 12%;
+  background-color: inherit;
+  border-radius: 99px;
+}
+
+.settings-container {
+  justify-self: end;
+  grid-column: 3 / 4;
+}
+
+.convertBtn {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--font);
+  padding: 8px 16px;
+  border-radius: 99px;
+  cursor: pointer;
+  margin-left: 10px;
+}
