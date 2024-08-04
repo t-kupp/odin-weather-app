@@ -10,7 +10,7 @@
     <script src="https://kit.fontawesome.com/c2f55ce452.js" crossorigin="anonymous"></script>
   </head>
   <body>
-    <header>
+    <nav>
       <div class="search-container">
         <input
           type="text"
@@ -22,10 +22,26 @@
         <button class="searchBtn" id="searchBtn"><i class="fa-solid fa-magnifying-glass"></i></button>
       </div>
       <div class="settings-container">
-        <button class="convertBtn" id="celsiusBtn">°C, m/s</button>
-        <button class="convertBtn" id="fahrenheitBtn">°F, m/s</button>
+        <button class="convertBtn" id="celsiusBtn">°C, km/h</button>
+        <button class="convertBtn active" id="fahrenheitBtn">°F, mph</button>
       </div>
-    </header>
-    <p id="dataDisplay"></p>
+    </nav>
+    <div class="content">
+      <div class="currentWeather">
+        <p class="locationName" id="locationName"></p>
+        <div class="info-container">
+          <div class="leftInfo">
+            <div class="currentIcon" id="currentIcon"></div>
+            <div class="currentTemp" id="currentTemp"></div>
+            <div class="date-time-container">
+              <div class="currentDate" id="currentDate"></div>
+              <div class="currentTime" id="currentTime"></div>
+            </div>
+          </div>
+          <div id="rightInfo" class="rightInfo">
+          </div>
+      </div>
+      <div class="forecast"></div>
+    </div>
   </body>
 </html>
