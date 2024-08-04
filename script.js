@@ -49,6 +49,7 @@ function filterData(json) {
   weatherData[0].windSpeed = json.currentConditions.windspeed;
   weatherData[0].icon = json.currentConditions.icon;
   weatherData[0].weekday = getWeekdayFromDate(json.days[0].datetime);
+  weatherData[0].tzoffset = json.tzoffset;
 
   //get data for the weather forecast
   for (let i = 1; i < weatherData.length; i++) {
@@ -178,23 +179,25 @@ function getLocationNameFormatted(string) {
 }
 
 function getCurrentDateFormatted() {
-  const today = new Date();
+  const now = new Date();
+  const futureTime = new Date(now.getTime() + (weatherData[0].tzoffset - 2) * 60 * 60 * 1000);
   const optionsWeekday = { weekday: "long" };
   const optionsDay = { day: "numeric" };
   const optionsMonth = { month: "long" };
   const optionsYear = { year: "numeric" };
-  const weekday = today.toLocaleDateString("en-US", optionsWeekday);
-  const day = today.toLocaleDateString("en-US", optionsDay);
-  const month = today.toLocaleDateString("en-US", optionsMonth);
-  const year = today.toLocaleDateString("en-US", optionsYear);
+  const weekday = futureTime.toLocaleDateString("en-US", optionsWeekday);
+  const day = futureTime.toLocaleDateString("en-US", optionsDay);
+  const month = futureTime.toLocaleDateString("en-US", optionsMonth);
+  const year = futureTime.toLocaleDateString("en-US", optionsYear);
   const formattedDate = `${weekday}, ${day} ${month} ${year}`;
   return formattedDate;
 }
 
 function getCurrentTimeFormatted() {
   const now = new Date();
-  let hours = now.getHours();
-  const minutes = now.getMinutes();
+  const futureTime = new Date(now.getTime() + (weatherData[0].tzoffset - 2) * 60 * 60 * 1000);
+  let hours = futureTime.getHours();
+  const minutes = futureTime.getMinutes();
   const period = hours >= 12 ? "pm" : "am";
   hours = hours % 24;
   const formattedHours = hours.toString().padStart(2, "0");
