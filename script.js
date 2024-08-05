@@ -8,9 +8,13 @@ const currentTimeDisplay = document.querySelector("#currentTime");
 const rightInfo = document.querySelector("#rightInfo");
 const celsiusBtn = document.querySelector("#celsiusBtn");
 const fahrenheitBtn = document.querySelector("#fahrenheitBtn");
-let activeUnitSystem = "imperial";
+const forecastContainer = document.querySelector("#forecast-container");
+let activeUnitSystem = "metric";
 
-// API functions
+///////////////////
+// API functions //
+///////////////////
+
 async function getWeatherData(location) {
   let cityName = location;
   let date1 = getCurrentDate();
@@ -50,6 +54,8 @@ function filterData(json) {
   weatherData[0].icon = json.currentConditions.icon;
   weatherData[0].weekday = getWeekdayFromDate(json.days[0].datetime);
   weatherData[0].tzoffset = json.tzoffset;
+  weatherData[0].tempMax = json.days[0].tempmax;
+  weatherData[0].tempMin = json.days[0].tempmin;
 
   //get data for the weather forecast
   for (let i = 1; i < weatherData.length; i++) {
@@ -58,11 +64,13 @@ function filterData(json) {
     weatherData[i].tempMin = json.days[i].tempmin;
     weatherData[i].icon = json.days[i].icon;
   }
-  console.log(weatherData);
   displayData();
 }
 
-// main function to display data
+///////////////////////////////////
+// main function to display data //
+///////////////////////////////////
+
 function displayData() {
   //left display
   locationName.innerText = getLocationNameFormatted(weatherData[0].currentLocation);
@@ -70,7 +78,7 @@ function displayData() {
   // messy, pls fix
   if (activeUnitSystem == "metric") {
     weatherData[0].currentTemp = fahrenheitToCelsius(weatherData[0].currentTemp);
-    currentTempDisplay.innerText = weatherData[0].currentTemp;
+    currentTempDisplay.innerText = weatherData[0].currentTemp + "°C";
   } else {
     currentTempDisplay.innerText = `${Math.round(weatherData[0].currentTemp)}` + "°F";
   }
@@ -78,30 +86,43 @@ function displayData() {
   currentTimeDisplay.innerText = getCurrentTimeFormatted();
 
   //right display
-  function buildSideInfoModule(icon, titleText, value, unit, id) {
-    let sideInfoContainer = rightInfo.appendChild(document.createElement("div"));
-    sideInfoContainer.classList.add("side-info-container");
-    sideInfoContainer.innerHTML = getIcon(icon);
-    let infoTitle = sideInfoContainer.appendChild(document.createElement("p"));
-    infoTitle.classList.add("sideInfoTitle");
-    infoTitle.innerText = titleText;
-    let sideInfoValue = sideInfoContainer.appendChild(document.createElement("p"));
-    sideInfoValue.classList.add("sideInfoValue");
-    if (activeUnitSystem == "metric" && unit == "°F") {
-      value = fahrenheitToCelsius(value);
-      unit = "°C";
-    }
-    sideInfoValue.innerText = `${value}${unit}`;
-    sideInfoValue.id = id;
-  }
   rightInfo.innerHTML = "";
   buildSideInfoModule("thermometer", "Feels Like", weatherData[0].feelsLike, "°F", "feelsLikeValue");
   buildSideInfoModule("humidity", "Humidity", weatherData[0].humidity, "%");
   buildSideInfoModule("chanceOfRain", "Chance of Rain", weatherData[0].chanceOfRain, "%");
   buildSideInfoModule("windSpeed", "Wind Speed", weatherData[0].windSpeed, "mph", "windSpeedValue");
+
+  // weather forecast
+  forecastContainer.innerHTML = "";
+  for (let i = 0; i < weatherData.length; i++) {
+    let fcDayContainer = forecastContainer.appendChild(document.createElement("div"));
+    fcDayContainer.classList.add("fc-day-container");
+    let fcTitle = fcDayContainer.appendChild(document.createElement("p"));
+    fcTitle.classList.add("fcTitle");
+    fcTitle.innerText = weatherData[i].weekday;
+    let icon = fcDayContainer.appendChild(document.createElement("div"));
+    icon.innerHTML = getIcon(weatherData[i].icon);
+    let fcMaxTemp = fcDayContainer.appendChild(document.createElement("p"));
+    fcMaxTemp.classList.add("fcMaxTemp");
+    fcMaxTemp.classList.add("tempValue");
+    fcMaxTemp.innerText = fahrenheitToCelsius(weatherData[i].tempMax) + "°C";
+    let fcLowTemp = fcDayContainer.appendChild(document.createElement("p"));
+    fcLowTemp.classList.add("fcLowTemp");
+    fcLowTemp.classList.add("tempValue");
+    fcLowTemp.innerText = fahrenheitToCelsius(weatherData[i].tempMin) + "°C";
+  }
+  if (activeUnitSystem == "imperial") {
+    let tempValues = document.querySelectorAll(".tempValue");
+    for (value of tempValues) {
+      value.innerText = celsiusToFahrenheit(value.innerText) + "°F";
+    }
+  }
 }
 
-// UI functions
+//////////////////
+// UI functions //
+//////////////////
+
 searchBtn.addEventListener("click", () => {
   getWeatherData(locationInput.value);
 });
@@ -125,7 +146,31 @@ fahrenheitBtn.addEventListener("click", () => {
   fahrenheitBtn.classList.add("active");
 });
 
-// helper functions
+//////////////////////
+// helper functions //
+//////////////////////
+
+function buildSideInfoModule(icon, titleText, value, unit, id) {
+  let sideInfoContainer = rightInfo.appendChild(document.createElement("div"));
+  sideInfoContainer.classList.add("side-info-container");
+  sideInfoContainer.innerHTML = getIcon(icon);
+  let infoTitle = sideInfoContainer.appendChild(document.createElement("p"));
+  infoTitle.classList.add("sideInfoTitle");
+  infoTitle.innerText = titleText;
+  let sideInfoValue = sideInfoContainer.appendChild(document.createElement("p"));
+  sideInfoValue.classList.add("sideInfoValue");
+  if (activeUnitSystem == "metric" && unit == "°F") {
+    value = fahrenheitToCelsius(value);
+    unit = "°C";
+  }
+  if (activeUnitSystem == "metric" && unit == "mph") {
+    value = MphToKmh(value);
+    unit = "km/h";
+  }
+  sideInfoValue.innerText = `${value}${unit}`;
+  sideInfoValue.id = id;
+}
+
 function fahrenheitToCelsius(input) {
   // check for string input and remove °F before converting
   if (typeof input == "string") {
@@ -133,7 +178,7 @@ function fahrenheitToCelsius(input) {
     input = parseFloat(input);
   }
   let result = ((input - 32) * 5) / 9;
-  return Math.round(result * 10) / 10 + "°C";
+  return Math.round(result);
 }
 
 function celsiusToFahrenheit(input) {
@@ -143,27 +188,27 @@ function celsiusToFahrenheit(input) {
     input = parseFloat(input);
   }
   let result = (input * 9) / 5 + 32;
-  return Math.round(result * 10) / 10 + "°F";
+  return Math.round(result);
 }
 
 function kmhToMph(input) {
   // check for string input and remove mph before converting
   if (typeof input == "string") {
-    input = input.replace("mph", "");
+    input = input.replace("km/h", "");
     input = parseFloat(input);
   }
   let result = input * 1.609344;
-  return Math.round(result * 10) / 10 + "km/h";
+  return Math.round(result * 10) / 10;
 }
 
 function MphToKmh(input) {
   // check for string input and remove mph before converting
   if (typeof input == "string") {
-    input = input.replace("km/h", "");
+    input = input.replace("mph", "");
     input = parseFloat(input);
   }
   let result = input / 1.609344;
-  return Math.round(result * 10) / 10 + "mph";
+  return Math.round(result * 10) / 10;
 }
 
 function getCurrentDate() {
@@ -222,27 +267,37 @@ function getWeekdayFromDate(date) {
 function convertValuesToMetric() {
   if (activeUnitSystem == "metric") return;
   // convert main display temperature
-  currentTempDisplay.innerText = fahrenheitToCelsius(currentTempDisplay.innerText);
+  currentTempDisplay.innerText = fahrenheitToCelsius(currentTempDisplay.innerText) + "°C";
   // convert feels like temperature
   const feelsLikeValue = document.querySelector("#feelsLikeValue");
-  feelsLikeValue.innerText = fahrenheitToCelsius(feelsLikeValue.innerText);
+  feelsLikeValue.innerText = fahrenheitToCelsius(feelsLikeValue.innerText) + "°C";
   // convert wind speed
   const windSpeedValue = document.querySelector("#windSpeedValue");
-  windSpeedValue.innerText = kmhToMph(windSpeedValue.innerText);
+  windSpeedValue.innerText = MphToKmh(windSpeedValue.innerText) + "km/h";
   activeUnitSystem = "metric";
+  // convert forecast
+  let tempValues = document.querySelectorAll(".tempValue");
+  for (value of tempValues) {
+    value.innerText = fahrenheitToCelsius(value.innerText) + "°C";
+  }
 }
 
 function convertValuesToImperial() {
   if (activeUnitSystem == "imperial") return;
   // convert main display temperature
-  currentTempDisplay.innerText = celsiusToFahrenheit(currentTempDisplay.innerText);
+  currentTempDisplay.innerText = celsiusToFahrenheit(currentTempDisplay.innerText) + "°F";
   // convert feels like temperature
   const feelsLikeValue = document.querySelector("#feelsLikeValue");
-  feelsLikeValue.innerText = celsiusToFahrenheit(feelsLikeValue.innerText);
+  feelsLikeValue.innerText = celsiusToFahrenheit(feelsLikeValue.innerText) + "°F";
   // convert wind speed
   const windSpeedValue = document.querySelector("#windSpeedValue");
-  windSpeedValue.innerText = MphToKmh(windSpeedValue.innerText);
+  windSpeedValue.innerText = kmhToMph(windSpeedValue.innerText) + "mph";
   activeUnitSystem = "imperial";
+  // convert forecast
+  let tempValues = document.querySelectorAll(".tempValue");
+  for (value of tempValues) {
+    value.innerText = celsiusToFahrenheit(value.innerText) + "°F";
+  }
 }
 
 function getIcon(icon) {
