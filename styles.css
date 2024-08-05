@@ -190,6 +190,7 @@ nav {
 }
 
 .fc-day-container {
+  min-width: 90px;
   margin: 5px;
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -224,11 +225,36 @@ nav {
   font-weight: 600;
 }
 
+/* copyright */
+
+.copyright {
+  color: var(--font);
+  opacity: 0.6;
+  position: fixed;
+  left: 50%;
+  transform: translate(-50%, 0);
+  bottom: 1%;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.copyright > a {
+  color: inherit;
+}
+
+.copyright > a:hover {
+  opacity: 0.6;
+}
+
+.copyright > a > i {
+  font-size: 18px;
+}
+
 /* toggle classes */
 
 .active {
   opacity: 1;
-  outline: var(--font) 3px solid;
+  outline: var(--font) 2px solid;
 }
 
 /* support for mobile devices */
