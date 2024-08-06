@@ -10,6 +10,18 @@ const celsiusBtn = document.querySelector("#celsiusBtn");
 const fahrenheitBtn = document.querySelector("#fahrenheitBtn");
 const forecastContainer = document.querySelector("#forecast-container");
 let activeUnitSystem = "metric";
+let useGeolocation = false;
+let weatherData = [
+  { day: "current" },
+  { day: 0 },
+  { day: 1 },
+  { day: 2 },
+  { day: 3 },
+  { day: 4 },
+  { day: 5 },
+  { day: 6 },
+  { day: 7 },
+];
 
 ///////////////////
 // API functions //
@@ -30,40 +42,76 @@ async function getWeatherData(location) {
     console.log(error);
   }
 }
-getWeatherData("Stockholm");
 
-let weatherData = [
-  { day: 0 },
-  { day: 1 },
-  { day: 2 },
-  { day: 3 },
-  { day: 4 },
-  { day: 5 },
-  { day: 6 },
-  { day: 7 },
-];
+navigator.geolocation.getCurrentPosition(
+  async function (position) {
+    useGeolocation = true;
+    let coordinates = `${position.coords.latitude},${position.coords.longitude}`;
+    weatherData[0].currentLocation = await coordinatesToLocationName(coordinates);
+    getWeatherData(coordinates);
+  },
+  function (error) {
+    switch (error.code) {
+      case error.PERMISSION_DENIED:
+        console.log("User denied the request for Geolocation.");
+        getWeatherData("Stockholm");
+        break;
+      case error.POSITION_UNAVAILABLE:
+        console.log("Location information is unavailable.");
+        getWeatherData("Stockholm");
+        break;
+      case error.TIMEOUT:
+        console.log("The request to get user location timed out.");
+        getWeatherData("Stockholm");
+        break;
+      case error.UNKNOWN_ERROR:
+        console.log("An unknown error occurred.");
+        getWeatherData("Stockholm");
+        break;
+    }
+  }
+);
+
+async function coordinatesToLocationName(coordinates) {
+  const APIKey = "AIzaSyAWg_qEKVBZJgMJEha0WaUZopCnAuhmpv0";
+  const requestURL = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${coordinates}&location_type=ROOFTOP&result_type=street_address&key=${APIKey}`; // Remove the extra '2' in the URL
+  try {
+    const response = await fetch(requestURL);
+    const json = await response.json();
+    return getCityAndCountryFromGoogleAPI(json);
+  } catch (error) {
+    console.log(error);
+  }
+}
 
 function filterData(json) {
   // get data for the current weather info
-  weatherData[0].currentLocation = json.resolvedAddress;
+  if (useGeolocation == false) {
+    let coordinates = json.latitude + "," + json.longitude;
+    weatherData[0].currentLocation = getLocationNameFormatted(json.resolvedAddress);
+  }
+  useGeolocation = false;
   weatherData[0].currentTemp = json.currentConditions.temp;
   weatherData[0].feelsLike = json.currentConditions.feelslike;
   weatherData[0].humidity = json.currentConditions.humidity;
-  weatherData[0].chanceOfRain = json.currentConditions.precipprob;
-  weatherData[0].windSpeed = json.currentConditions.windspeed;
-  weatherData[0].icon = json.currentConditions.icon;
-  weatherData[0].weekday = getWeekdayFromDate(json.days[0].datetime);
   weatherData[0].tzoffset = json.tzoffset;
+  weatherData[0].icon = json.currentConditions.icon;
+  weatherData[0].chanceOfRain = json.days[0].hours[getCurrentHour()].precipprob;
+  if (weatherData[0].icon == "rain") weatherData[0].chanceOfRain = 100;
+  weatherData[0].windSpeed = json.currentConditions.windspeed;
+  weatherData[0].weekday = getWeekdayFromDate(json.days[0].datetime);
   weatherData[0].tempMax = json.days[0].tempmax;
   weatherData[0].tempMin = json.days[0].tempmin;
-
   //get data for the weather forecast
+  let d = 0;
   for (let i = 1; i < weatherData.length; i++) {
-    weatherData[i].weekday = getWeekdayFromDate(json.days[i].datetime);
-    weatherData[i].tempMax = json.days[i].tempmax;
-    weatherData[i].tempMin = json.days[i].tempmin;
-    weatherData[i].icon = json.days[i].icon;
+    weatherData[i].weekday = getWeekdayFromDate(json.days[d].datetime);
+    weatherData[i].tempMax = json.days[d].tempmax;
+    weatherData[i].tempMin = json.days[d].tempmin;
+    weatherData[i].icon = json.days[d].icon;
+    d++;
   }
+  d = 0;
   displayData();
 }
 
@@ -94,7 +142,7 @@ function displayData() {
 
   // weather forecast
   forecastContainer.innerHTML = "";
-  for (let i = 0; i < weatherData.length; i++) {
+  for (let i = 1; i < weatherData.length; i++) {
     let fcDayContainer = forecastContainer.appendChild(document.createElement("div"));
     fcDayContainer.classList.add("fc-day-container");
     let fcTitle = fcDayContainer.appendChild(document.createElement("p"));
@@ -149,6 +197,15 @@ fahrenheitBtn.addEventListener("click", () => {
 //////////////////////
 // helper functions //
 //////////////////////
+
+function getCityAndCountryFromGoogleAPI(json) {
+  let arr = json.plus_code.compound_code.split(" ");
+  let result = [];
+  for (let i = 1; i < arr.length; i++) {
+    result.push(arr[i]);
+  }
+  return result.join(" ");
+}
 
 function buildSideInfoModule(icon, titleText, value, unit, id) {
   let sideInfoContainer = rightInfo.appendChild(document.createElement("div"));
@@ -249,6 +306,14 @@ function getCurrentTimeFormatted() {
   const formattedMinutes = minutes.toString().padStart(2, "0");
   const formattedTime = `${formattedHours}:${formattedMinutes} ${period}`;
   return formattedTime;
+}
+
+function getCurrentHour() {
+  const now = new Date();
+  const futureTime = new Date(now.getTime() + (weatherData[0].tzoffset - 2) * 60 * 60 * 1000);
+  let hours = futureTime.getHours();
+  hours = hours % 24;
+  return hours;
 }
 
 function getDateInAWeek() {
