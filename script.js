@@ -199,7 +199,6 @@ fahrenheitBtn.addEventListener("click", () => {
 //////////////////////
 
 function getCityAndCountryFromGoogleAPI(json) {
-  console.log(json);
   let arr = json.plus_code.compound_code.split(" ");
   let result = [];
   for (let i = 1; i < arr.length; i++) {
