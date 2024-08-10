@@ -36,7 +36,6 @@ async function getWeatherData(location) {
   try {
     const response = await fetch(requestURL);
     const json = await response.json();
-    console.log(json);
     filterData(json);
   } catch (error) {
     console.log(error);
@@ -74,7 +73,7 @@ navigator.geolocation.getCurrentPosition(
 
 async function coordinatesToLocationName(coordinates) {
   const APIKey = "AIzaSyAWg_qEKVBZJgMJEha0WaUZopCnAuhmpv0";
-  const requestURL = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${coordinates}&location_type=ROOFTOP&result_type=street_address&key=${APIKey}`; // Remove the extra '2' in the URL
+  const requestURL = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${coordinates}&location_type=ROOFTOP&result_type=street_address&key=${APIKey}`;
   try {
     const response = await fetch(requestURL);
     const json = await response.json();
@@ -199,6 +198,7 @@ fahrenheitBtn.addEventListener("click", () => {
 //////////////////////
 
 function getCityAndCountryFromGoogleAPI(json) {
+  console.log(json);
   let arr = json.plus_code.compound_code.split(" ");
   let result = [];
   for (let i = 1; i < arr.length; i++) {
