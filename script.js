@@ -39,6 +39,7 @@ async function getWeatherData(location) {
     filterData(json);
   } catch (error) {
     console.log(error);
+    alert("Location not found.");
   }
 }
 
