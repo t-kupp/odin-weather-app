@@ -135,7 +135,13 @@ function displayData() {
 
   //right display
   rightInfo.innerHTML = "";
-  buildSideInfoModule("thermometer", "Feels Like", weatherData[0].feelsLike, "°F", "feelsLikeValue");
+  buildSideInfoModule(
+    "thermometer",
+    "Feels Like",
+    weatherData[0].feelsLike,
+    "°F",
+    "feelsLikeValue"
+  );
   buildSideInfoModule("humidity", "Humidity", weatherData[0].humidity, "%");
   buildSideInfoModule("chanceOfRain", "Chance of Rain", weatherData[0].chanceOfRain, "%");
   buildSideInfoModule("windSpeed", "Wind Speed", weatherData[0].windSpeed, "mph", "windSpeedValue");
@@ -182,6 +188,10 @@ locationInput.addEventListener("keydown", (e) => {
   }
 });
 
+locationInput.addEventListener("click", () => {
+  locationInput.value = "";
+});
+
 celsiusBtn.addEventListener("click", () => {
   convertValuesToMetric();
   celsiusBtn.classList.add("active");
@@ -192,6 +202,19 @@ fahrenheitBtn.addEventListener("click", () => {
   convertValuesToImperial();
   celsiusBtn.classList.remove("active");
   fahrenheitBtn.classList.add("active");
+});
+
+const hideMobileKeyboardOnReturn = (element) => {
+  element.addEventListener("keyup", (keyboardEvent) => {
+    const key = keyboardEvent.code || keyboardEvent.keyCode;
+    if (key === "Enter" || key === 13) {
+      element.blur();
+    }
+  });
+};
+
+document.querySelectorAll("[type=search]").forEach((element) => {
+  hideMobileKeyboardOnReturn(element);
 });
 
 //////////////////////
