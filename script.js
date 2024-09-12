@@ -184,8 +184,8 @@ searchBtn.addEventListener("click", () => {
 locationInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
     e.preventDefault();
+    locationInput.blur();
     getWeatherData(locationInput.value);
-    searchInput.blur();
   }
 });
 
