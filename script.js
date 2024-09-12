@@ -185,6 +185,7 @@ locationInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
     e.preventDefault();
     getWeatherData(locationInput.value);
+    searchInput.blur();
   }
 });
 
@@ -202,19 +203,6 @@ fahrenheitBtn.addEventListener("click", () => {
   convertValuesToImperial();
   celsiusBtn.classList.remove("active");
   fahrenheitBtn.classList.add("active");
-});
-
-const hideMobileKeyboardOnReturn = (element) => {
-  element.addEventListener("keyup", (keyboardEvent) => {
-    const key = keyboardEvent.code || keyboardEvent.keyCode;
-    if (key === "Enter" || key === 13) {
-      element.blur();
-    }
-  });
-};
-
-document.querySelectorAll("[type=search]").forEach((element) => {
-  hideMobileKeyboardOnReturn(element);
 });
 
 //////////////////////
